@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <title>AWS terrain</title>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" crossorigin="anonymous">
+        <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+        <style>
+            body {
+                margin: 0;
+            }
+            #map {
+                height:100%; width:100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script type="text/javascript">
+            const styleUrl = "https://tile.openstreetmap.jp/styles/maptiler-basic-ja/style.json"
+            const terrainUrl = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
+            let style;
+            fetch(styleUrl).then(res=> res.json()).then(json => {
+                style = json
+                style['sources']['terrain'] = {
+                    type: "raster-dem",
+                    tiles:[terrainUrl],
+                    encoding: 'terrarium',
+                    tileSize: 256,
+                    maxzoom: 15,
+                    minzoom: 1,
+                    attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | <a href="https://mapzen.com/" target="_blank">Mapzen</a>'
+                }
+                style['layers'].push({
+                    id: 'hills',
+                    type: 'hillshade',
+                    source: 'terrain',
+                    paint: { 
+                        'hillshade-illumination-anchor': 'map',
+                        'hillshade-exaggeration': 0.2,
+                    },
+                })
+                console.log(style)
+                const map = new maplibregl.Map({
+                    maxZoom: 20,
+                    container: 'map',
+                    style: style,
+                    maxPitch: 85,
+                    hash: true,
+                    center: [140.084556, 36.104611],
+                    zoom: 10,
+                })
+                map.addControl(
+                    new maplibregl.TerrainControl({
+                        source: 'terrain',
+                        exaggeration: 1
+                    })
+                )
+            })
+
+        </script>
+    </body>
+</html>
