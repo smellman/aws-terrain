@@ -69,6 +69,7 @@
                     center: [140.084556, 36.104611],
                     zoom: 10,
                 })
+                map.addControl(new maplibregl.NavigationControl())
                 map.addControl(
                     new maplibregl.TerrainControl({
                         source: 'terrain',
